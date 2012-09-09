@@ -1,0 +1,41 @@
+Compiling and Building
+======================
+
+Compiling
+---------
+
+- Windows: Use compile.bat in the source code repository.
+- Linux/Mac: Use the makefile.
+
+The binary will be made in <repos>/build.
+
+The develop environment should be mostly stand-alone with SourcePawn compiler,
+some tools and include files.
+
+Linux/Mac requirements:
+- Make
+- Mercurial
+
+Windows requirements:
+- TortoiseHg or Mercurial
+
+Building
+--------
+
+The build.sh script will make a complete release with plugin, source, resources
+and documents bundled in a zip-archive. The folder structure in the release is
+prepared to be extracted in the root game directory (cstrike, tf, etc.) so all
+files go in the correct place.
+
+It's also possible to make patches where the build script only package files
+that were changed since a certain revision (the full source will always be
+included).
+
+In addition the patch build will generate files that describe changes
+of text files in individual patches. This is useful to see exactly what's
+changed in config files. Add revision numbers to patchlist.conf on separate
+lines to generate this changelog. The changes are dumped in the unified diff
+format.
+
+The build script is suitable for automatic builds, either in release mode or
+patch mode.

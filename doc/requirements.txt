@@ -1,0 +1,12 @@
+PawnUnit Specification
+======================
+
+Main goals:
+
+    * Easy to write tests (hide complexity)
+    * Support unit tests
+    * Support asynchronous tests to deal with callbacks and events
+    * Support fully automated testing
+    * Support manually starting tests
+    * Generate test report in multiple formats
+    * Embedded in plugin with minimal impact on plugin code

@@ -1,0 +1,86 @@
+PawnUnit Idea Bank
+==================
+
+Test Structure
+--------------
+
+Hierarchy/Containers
+- TestSuite
+  - TestCollection
+    - TestCase
+      - TestPhase
+
+TestSuite
+A collection of collections. Can be used to make categories or include all
+tests.
+
+TestCollection
+A collection of test cases. Can be related to a module or component.
+
+TestCase
+A named test case.
+
+TestPhase
+A callback used to execute test code. Asynchronous test cases will usually need
+several phases where the first phase trigger something that it need to wait for
+while the rest of the plugin continue as usual. Once it's complete the next
+phase will be executed and results can be tested.
+
+Storage
+Use arrays enumerations to define the structure of objects. Use dynamic arrays
+(ADT) and link these objects together by the array handles. Provide wrappers for
+easy creation and (recursive) removal of objects.
+
+
+Test Execution
+--------------
+
+The PawnUnit engine must be passed a test suite where it will iterate over
+collections, test cases and phases.
+
+Testing must be sequential. If a test case waits for a callback, PawnUnit should
+proceed to the next test until the callback is executed - or until a certain
+time has passed.
+
+
+How To Handle Callbacks?
+------------------------
+
+PawnUnit need to know:
+
+    * when it's waiting for a callback
+        - Use a return code in the test phase.
+    * when the callback is called
+        - Use a callback wrapper and forward parameters?
+        - Provide a function that will tell PawnUnit it was called.
+    * when the callback returned
+        - The callback wrapper would know.
+        - Provide a function that will shortly resume testing. Call that
+          function right before returning.
+
+* How can PawnUnit know when a callback function is called?
+
+General idea (using a timer as example)
+Use PawnUnit to create a callback wrapper function where you pass the wrapper
+as the timer callback. On a timer tick the callback wrapper will be executed and
+forward the call to the actual callback. Once the callback returns PawnUnit will
+continue testing at the next phase (if any).
+
+Potential problem: Avoid stack overflow. PawnUnit must be stopped entirely
+when waiting for a callback. If the callback wrapper resume testing directly,
+the wrapper function will never return. A possible solution is to use a timer
+to schedule resuming of testing in the future. This should happen as fast as
+possible, maybe even in the same tick. Most important is that the callback
+wrapper will be able to return.
+
+* How can PawnUnit forward parameters from one function to another function?
+
+When the callback wrapper is called, there might be some parameters passed to
+it. These parameters must be forwarded back to the actual callback. How do we
+dynamically get parameters passed to the callback wrapper?
+
+TODO: Investigate getarg.
+
+(The simple way
+Create one array for storing parameter data and another one for telling which
+type of data it is (int, float, string, etc.).)

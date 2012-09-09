@@ -1,0 +1,14 @@
+# use glob syntax.
+syntax: glob
+
+src/include/pawnunit/vcsversion.inc
+doc/changes.diff
+doc/changes/*
+
+build/*
+release/*
+
+patch.diff
+patch.txt
+
+.DS_Store
