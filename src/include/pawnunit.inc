@@ -32,4 +32,6 @@
 #define _pawnunit_included
 
 //#include <pawnunit/assert>
-//#include <pawnunit/main>
+#include <pawnunit/main>
+#include <pawnunit/testcase>
+#include <pawnunit/testcollection>

@@ -58,7 +58,7 @@ enum TestCaseData
  * @param phases    Optional. Array of function handles. Default is an empty
  *                  array.
  *
- * @return          Reference to a test case data structure.
+ * @return          Reference to the test case data structure.
  */
 stock TestCase:PawnUnit_CreateTestCase(const String:name[], Handle:phases = INVALID_HANDLE)
 {
@@ -132,6 +132,7 @@ stock PawnUnit_AddTestPhase(TestCase:testCase, PawnUnitTestPhase:phase)
     PawnUnit_ValidateTestCase(phase);
     
     Handle:phases = PawnUnit_GetTestPhases(testCase);
+    PushArrayCell(phases, _:phase);
 }
 
 /**
