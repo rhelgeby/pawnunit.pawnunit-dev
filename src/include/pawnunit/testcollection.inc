@@ -30,6 +30,9 @@
 #endif
 #define _pawnunit_testcollection_included
 
+/**
+ * Test collection reference tag.
+ */
 enum TestCollection
 {
     INVALID_TEST_COLLECTION = -1;
@@ -44,6 +47,8 @@ enum TestCollection
 enum TestCollectionData
 {
     TestCollection_TestCases,   /** Array of test case references. */
+    TestCollection_Before,      /** Function to execute before test case. */
+    TestCollection_After,       /** Function to execute after test case. */
     TestCollection_Name,        /** Display name of test collection. */
 }
 
@@ -56,10 +61,15 @@ enum TestCollectionData
  * @param name          Name of test collection.
  * @param testCases     Optional. Array of test case references. Default is an
  *                      empty array.
+ * @param before        Optional. Function to execute before every test case.
+ * @param after         Optional. Function to execute after every test case.
  *
  * @return              Reference to the test collection data structure.
  */
-stock TestCollection:PawnUnit_CreateTestCase(const String:name[], Handle:testCases = INVALID_HANDLE)
+stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
+        Handle:testCases = INVALID_HANDLE,
+        Function:before = INVALID_FUNCTION,
+        Function:after = INVALID_FUNCTION)
 {
     new Handle:testCollection = CreateDataPack();
     
@@ -70,8 +80,10 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[], Handle:testCas
     }
     
     // Write test collection data.
-    WritePackCell(testCollection, _:phases);  // TestCollection_TestCases
-    WritePackString(testCollection, name);    // TestCollection_Name
+    WritePackCell(testCollection, _:phases);    // TestCollection_TestCases
+    WritePackCell(testCollection, _:before);    // TestCollection_Before
+    WritePackCell(testCollection, _:after);     // TestCollection_After
+    WritePackString(testCollection, name);      // TestCollection_Name
     
     // Reset cursor.
     SetPackPosition(testCollection, 0);
@@ -91,7 +103,9 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[], Handle:testCas
  *                          INVALID_TEST_COLLECTION when deleted. Default is
  *                          true.
  */
-stock Handle:PawnUnit_DeleteTestCollection(TestCase:&testCollection, bool:recursive = true, bool:resetReference = true)
+stock Handle:PawnUnit_DeleteTestCollection(TestCase:&testCollection,
+        bool:recursive = true,
+        bool:resetReference = true)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
@@ -145,6 +159,76 @@ stock PawnUnit_AddTestCase(TestCollection:testCollection, TestCase:testCase)
     
     Handle:testCases = PawnUnit_GetTestPhases(testCollection);
     PushArrayCell(testCases, testCase);
+}
+
+/**
+ * Gets the function reference for the function to execute before every test
+ * case.
+ *
+ * @param testCollection    Test collection reference.
+ *
+ * @return                  Function reference or INVALID_FUNCTION if none
+ *                          specified.
+ */
+stock Function:PawnUnit_GetBefore(TestCollection:testCollection)
+{
+    PawnUnit_ValidateTestCollection(testCollection);
+    
+    SetPackPosition(testCollection, _:TestCollection_Before);
+    return Function:ReadPackCell(Handle:testCollection);
+}
+
+/**
+ * Sets the function reference for the function to execute before every test
+ * case.
+ *
+ * @param testCollection    Test collection reference.
+ * @param before            New function to execute before every test case.
+ *
+ * @return                  Function reference or INVALID_FUNCTION if none
+ *                          specified.
+ */
+stock PawnUnit_SetBefore(TestCollection:testCollection, Function:before)
+{
+    PawnUnit_ValidateTestCollection(testCollection);
+    
+    SetPackPosition(testCollection, _:TestCollection_Before);
+    WritePackCell(Handle:testCollection, _:before);
+}
+
+/**
+ * Gets the function reference for the function to execute after every test
+ * case.
+ *
+ * @param testCollection    Test collection reference.
+ *
+ * @return                  Function reference or INVALID_FUNCTION if none
+ *                          specified.
+ */
+stock Function:PawnUnit_GetAfter(TestCollection:testCollection)
+{
+    PawnUnit_ValidateTestCollection(testCollection);
+    
+    SetPackPosition(testCollection, _:TestCollection_After);
+    return Function:ReadPackCell(Handle:testCollection);
+}
+
+/**
+ * Sets the function reference for the function to execute after every test
+ * case.
+ *
+ * @param testCollection    Test collection reference.
+ * @param after             New function to execute after every test case.
+ *
+ * @return                  Function reference or INVALID_FUNCTION if none
+ *                          specified.
+ */
+stock PawnUnit_SetAfter(TestCollection:testCollection, Function:after)
+{
+    PawnUnit_ValidateTestCollection(testCollection);
+    
+    SetPackPosition(testCollection, _:TestCollection_After);
+    WritePackCell(Handle:testCollection, _:after);
 }
 
 /**

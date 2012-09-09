@@ -1,0 +1,9 @@
+PawnUnit Credits
+================
+
+Copyright (C) 2012  Richard Helgeby
+
+Pawn unit is mainly based on ideas from:
+
+* JUnit
+* TestRunner (https://github.com/rhelgeby/TestRunner-Core)

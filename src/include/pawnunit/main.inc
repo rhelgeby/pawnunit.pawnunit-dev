@@ -6,7 +6,8 @@
  *  File:          main.inc
  *  Type:          Include
  *  Description:   PawnUnit testing API.
- *  Notes:         Main components of the testing API.
+ *  Notes:         Main components of the testing API. See also testcase.inc
+ *                 and testcollection.inc.
  *
  *  Copyright (C) 2012  Richard Helgeby
  *

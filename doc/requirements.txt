@@ -3,9 +3,9 @@ PawnUnit Specification
 
 Main goals:
 
-    * Easy to write tests (hide complexity)
+    * Easy to write tests (hide complexity, clean test code)
     * Support unit tests
-    * Support asynchronous tests to deal with callbacks and events
+    * Support asynchronous tests to deal with callbacks and events  -- UNSATISFIED due to current SourcePawn limits!
     * Support fully automated testing
     * Support manually starting tests
     * Generate test report in multiple formats

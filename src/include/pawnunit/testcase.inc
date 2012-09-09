@@ -30,6 +30,9 @@
 #endif
 #define _pawnunit_testcase_included
 
+/**
+ * Test case reference tag.
+ */
 enum TestCase
 {
     INVALID_TEST_CASE = -1;
@@ -43,9 +46,10 @@ enum TestCase
  */
 enum TestCaseData
 {
-    TestCase_Phases,    /** Array of function handles. */
-    TestCase_Passed,    /** Specifies whether the test passed or not. */
-    TestCase_Name,      /** Display name of test case. */
+    TestCase_Phases,        /** Array of function handles. */
+    TestCase_Passed,        /** Specifies whether the test passed or not. */
+    TestCase_ErrorMessage,  /** Error message if the test failed. */
+    TestCase_Name,          /** Display name of test case. */
 }
 
 /**
@@ -73,6 +77,7 @@ stock TestCase:PawnUnit_CreateTestCase(const String:name[], Handle:phases = INVA
     // Write test case data.
     WritePackCell(testCase, phases);    // TestCase_Phases
     WritePackCell(testCase, 0);         // TestCase_Passed
+    WritePackString(testCase, "");      // TestCase_ErrorMessage
     WritePackString(testCase, name);    // TestCase_Name
     
     // Reset cursor.
@@ -162,6 +167,35 @@ stock PawnUnit_SetTestCaseName(TestCase:testCase, const String:name[])
     
     SetPackPosition(testCase, _:TestCase_Name);
     WritePackString(Handle:testCase, name);
+}
+
+/**
+ * Gets the test case error message.
+ *
+ * @param testCase      Test case reference.
+ * @param buffer        Destination string buffer.
+ * @param maxlen        Size of buffer.
+ */
+stock PawnUnit_GetTestCaseError(TestCase:testCase, String:buffer[], maxlen)
+{
+    PawnUnit_ValidateTestCase(testCase);
+    
+    SetPackPosition(testCase, _:TestCase_ErrorMessage);
+    ReadPackString(Handle:testCase, buffer, maxlen);
+}
+
+/**
+ * Sets the test case error message.
+ *
+ * @param testCase      Test case reference.
+ * @param errorMessage  New error message to set.
+ */
+stock PawnUnit_SetTestCaseError(TestCase:testCase, const String:errorMessage[])
+{
+    PawnUnit_ValidateTestCase(testCase);
+    
+    SetPackPosition(testCase, _:TestCase_ErrorMessage);
+    WritePackString(Handle:testCase, errorMessage);
 }
 
 /**
