@@ -41,8 +41,8 @@ enum TestCollection
 /**
  * Defines the test collection data elements.
  *
- * Note: Do not modify the order of these elements. They are used to set data
- *       pack positions.
+ * Note: Do not modify the order of these elements. They are used to set array
+ *       indexes.
  */
 enum TestCollectionData
 {
@@ -71,7 +71,8 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
         Function:before = INVALID_FUNCTION,
         Function:after = INVALID_FUNCTION)
 {
-    new Handle:testCollection = CreateDataPack();
+    // Create array to store data in. Reserve space for strings.
+    new Handle:testCollection = CreateArray(PAWNUNIT_MSG_LEN);
     
     // Create empty test case array if not specified.
     if (testCases == INVALID_HANDLE)
@@ -80,13 +81,11 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
     }
     
     // Write test collection data.
-    WritePackCell(testCollection, _:phases);    // TestCollection_TestCases
-    WritePackCell(testCollection, _:before);    // TestCollection_Before
-    WritePackCell(testCollection, _:after);     // TestCollection_After
-    WritePackString(testCollection, name);      // TestCollection_Name
-    
-    // Reset cursor.
-    SetPackPosition(testCollection, 0);
+    // Note: Update TestCollectionData enum if write order is changed.
+    PushArrayCell(testCollection, _:phases);    // TestCollection_TestCases
+    PushArrayCell(testCollection, _:before);    // TestCollection_Before
+    PushArrayCell(testCollection, _:after);     // TestCollection_After
+    PushArrayString(testCollection, name);      // TestCollection_Name
     
     return TestCollection:testCollection;
 }
@@ -109,15 +108,14 @@ stock Handle:PawnUnit_DeleteTestCollection(TestCase:&testCollection,
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_TestCases);
-    new Handle:testCases = Handle:ReadPackCell(testCollection);
+    new Handle:testCases = Handle:GetArrayCell(testCollection, _:TestCollection_TestCases);
     
     if (recursive)
     {
         new len = GetArraySize(testCases);
         for (new i = 0; i < len; i++)
         {
-            TestCase:testCase = GetArrayCell(i);
+            TestCase:testCase = GetArrayCell(testCases, i);
             PawnUnit_DeleteTestCase(testCase);
         }
     }
@@ -142,8 +140,7 @@ stock Handle:PawnUnit_GetTestCases(TestCollection:testCollection)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_TestCases);
-    return Handle:ReadPackCell(Handle:testCollection);
+    return Handle:GetArrayCell(Handle:testCollection, _:TestCollection_TestCases);
 }
 
 /**
@@ -174,8 +171,7 @@ stock Function:PawnUnit_GetBefore(TestCollection:testCollection)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_Before);
-    return Function:ReadPackCell(Handle:testCollection);
+    return Function:GetArrayCell(Handle:testCollection, _:TestCollection_Before);
 }
 
 /**
@@ -192,8 +188,7 @@ stock PawnUnit_SetBefore(TestCollection:testCollection, Function:before)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_Before);
-    WritePackCell(Handle:testCollection, _:before);
+    SetArrayCell(Handle:testCollection, _:TestCollection_Before, _:before);
 }
 
 /**
@@ -209,8 +204,7 @@ stock Function:PawnUnit_GetAfter(TestCollection:testCollection)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_After);
-    return Function:ReadPackCell(Handle:testCollection);
+    return Function:GetArrayCell(Handle:testCollection, _:TestCollection_After);
 }
 
 /**
@@ -227,8 +221,7 @@ stock PawnUnit_SetAfter(TestCollection:testCollection, Function:after)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_After);
-    WritePackCell(Handle:testCollection, _:after);
+    SetArrayCell(Handle:testCollection, _:TestCollection_After, _:after);
 }
 
 /**
@@ -237,27 +230,29 @@ stock PawnUnit_SetAfter(TestCollection:testCollection, Function:after)
  * @param testCollection    Test collection reference.
  * @param buffer            Destination string buffer.
  * @param maxlen            Size of buffer.
+ *
+ * @return                  Number of characters copied.
  */
 stock PawnUnit_GetTestCollectionName(TestCollection:testCollection, String:buffer[], maxlen)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_Name);
-    ReadPackString(Handle:testCollection, buffer, maxlen);
+    return GetArrayString(Handle:testCollection, _:TestCollection_Name, buffer, maxlen);
 }
 
 /**
  * Sets the test collection name.
  *
  * @param testCollection    Test collection reference.
- * @param name          New name to set.
+ * @param name              New name to set.
+ *
+ * @return                  Number of characters copied.
  */
 stock PawnUnit_SetTestCollectionName(TestCollection:testCollection, const String:name[])
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetPackPosition(testCollection, _:TestCollection_Name);
-    WritePackString(Handle:testCollection, name);
+    SetArrayString(Handle:testCollection, _:TestCollection_Name, name);
 }
 
 

@@ -32,7 +32,8 @@
 #endif
 #define _pawnunit_main_included
 
-#define NAME_LEN 64
+#define PAWNUNIT_NAME_LEN 64
+#define PAWNUNIT_MSG_LEN 255
 
 /**
  * Called when a test phase is executed.

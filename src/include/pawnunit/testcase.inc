@@ -41,8 +41,8 @@ enum TestCase
 /**
  * Defines the test case data elements.
  *
- * Note: Do not modify the order of these elements. They are used to set data
- *       pack positions.
+ * Note: Do not modify the order of these elements. They are used to set array
+ *       indexes.
  */
 enum TestCaseData
 {
@@ -66,7 +66,8 @@ enum TestCaseData
  */
 stock TestCase:PawnUnit_CreateTestCase(const String:name[], Handle:phases = INVALID_HANDLE)
 {
-    new Handle:testCase = CreateDataPack();
+    // Create array to store data in. Reserve space for strings.
+    new Handle:testCase = CreateArray(PAWNUNIT_MSG_LEN);
     
     // Create empty phase array if not specified.
     if (phases == INVALID_HANDLE)
@@ -75,13 +76,11 @@ stock TestCase:PawnUnit_CreateTestCase(const String:name[], Handle:phases = INVA
     }
     
     // Write test case data.
-    WritePackCell(testCase, phases);    // TestCase_Phases
-    WritePackCell(testCase, 0);         // TestCase_Passed
-    WritePackString(testCase, "");      // TestCase_ErrorMessage
-    WritePackString(testCase, name);    // TestCase_Name
-    
-    // Reset cursor.
-    SetPackPosition(testCase, 0);
+    // Note: Update TestCaseData enum if write order is changed.
+    PushArrayCell(testCase, phases);    // TestCase_Phases
+    PushArrayCell(testCase, 0);         // TestCase_Passed
+    PushArrayString(testCase, "");      // TestCase_ErrorMessage
+    PushArrayString(testCase, name);    // TestCase_Name
     
     return TestCase:testCase;
 }
@@ -97,10 +96,8 @@ stock Handle:PawnUnit_DeleteTestCase(TestCase:&testCase, bool:resetReference = t
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Phases);
-    
     // Delete test phase array.
-    CloseHandle(Handle:ReadPackCell(testCase));
+    CloseHandle(Handle:GetArrayCell(testCase, _:TestCase_Phases));
     
     CloseHandle(testCase);
     
@@ -121,8 +118,7 @@ stock Handle:PawnUnit_GetTestPhases(TestCase:testCase)
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Phases);
-    return Handle:ReadPackCell(Handle:testCase);
+    return Handle:GetArrayCell(Handle:testCase, _:TestCase_Phases);
 }
 
 /**
@@ -146,13 +142,14 @@ stock PawnUnit_AddTestPhase(TestCase:testCase, PawnUnitTestPhase:phase)
  * @param testCase      Test case reference.
  * @param buffer        Destination string buffer.
  * @param maxlen        Size of buffer.
+ *
+ * @return              Number of characters copied.
  */
 stock PawnUnit_GetTestCaseName(TestCase:testCase, String:buffer[], maxlen)
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Name);
-    ReadPackString(Handle:testCase, buffer, maxlen);
+    return GetArrayString(Handle:testCase, _:TestCase_Name, buffer, maxlen);
 }
 
 /**
@@ -160,13 +157,14 @@ stock PawnUnit_GetTestCaseName(TestCase:testCase, String:buffer[], maxlen)
  *
  * @param testCase      Test case reference.
  * @param name          New name to set.
+ *
+ * @return              Number of characters copied.
  */
 stock PawnUnit_SetTestCaseName(TestCase:testCase, const String:name[])
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Name);
-    WritePackString(Handle:testCase, name);
+    return SetArrayString(Handle:testCase, _:TestCase_Name, name);
 }
 
 /**
@@ -175,13 +173,14 @@ stock PawnUnit_SetTestCaseName(TestCase:testCase, const String:name[])
  * @param testCase      Test case reference.
  * @param buffer        Destination string buffer.
  * @param maxlen        Size of buffer.
+ *
+ * @return              Number of characters copied.
  */
 stock PawnUnit_GetTestCaseError(TestCase:testCase, String:buffer[], maxlen)
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_ErrorMessage);
-    ReadPackString(Handle:testCase, buffer, maxlen);
+    return GetArrayString(Handle:testCase, _:TestCase_ErrorMessage, buffer, maxlen);
 }
 
 /**
@@ -189,13 +188,14 @@ stock PawnUnit_GetTestCaseError(TestCase:testCase, String:buffer[], maxlen)
  *
  * @param testCase      Test case reference.
  * @param errorMessage  New error message to set.
+ *
+ * @return              Number of characters copied.
  */
 stock PawnUnit_SetTestCaseError(TestCase:testCase, const String:errorMessage[])
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_ErrorMessage);
-    WritePackString(Handle:testCase, errorMessage);
+    return SetArrayString(Handle:testCase, _:TestCase_ErrorMessage, errorMessage);
 }
 
 /**
@@ -211,8 +211,7 @@ stock bool:PawnUnit_GetTestPassed(TestCase:testCase)
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Passed);
-    return bool:ReadPackCell(Handle:testCase);
+    return bool:GetArrayCell(Handle:testCase, _:TestCase_Passed);
 }
 
 /**
@@ -225,8 +224,7 @@ stock bool:PawnUnit_SetTestPassed(TestCase:testCase, bool:passed)
 {
     PawnUnit_ValidateTestCase(testCase);
     
-    SetPackPosition(testCase, _:TestCase_Passed);
-    WritePackCell(Handle:testCase, passed);
+    SetArrayCell(Handle:testCase, _:TestCase_Passed, passed);
 }
 
 
