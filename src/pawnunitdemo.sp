@@ -45,11 +45,47 @@ public Plugin:myinfo =
     url = "http://www.helgeby.net"
 };
 
+new TestCollection:ExampleCollection = INVALID_TEST_COLLECTION;
+
 /**
  * Plugin is loading.
  */
 public OnPluginStart()
 {
-    // Print message in server console.
-    PrintToServer("Hello world!");
+    InitTestCases();
+    RunTests();
+}
+
+/**
+ * Plugin is unloading.
+ */
+public OnPluginEnd()
+{
+    // Delete collection and test cases. Not really necessary in this example
+    // plugin since they're only created once anyways.
+    PawnUnit_DeleteTestCollection(ExampleCollection);
+}
+
+RunTests()
+{
+    PawnUnit_Run(ExampleCollection);
+}
+
+/******************
+ *   Test cases   *
+ ******************/
+
+InitTestCases()
+{
+    ExampleCollection = PawnUnit_CreateTestCollection("Example tests");
+    
+    new TestCase:testNothing = PawnUnit_CreateTestCase("Test nothing");
+    PawnUnit_AddTestPhase(testNothing, TestNothing);
+    
+    PawnUnit_AddTestCase(ExampleCollection, testNothing);
+}
+
+public TestControlAction:TestNothing(TestCase:testCase)
+{
+    return Test_Continue;
 }

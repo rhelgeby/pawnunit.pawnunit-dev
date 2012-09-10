@@ -84,3 +84,11 @@ TODO: Investigate getarg.
 (The simple way
 Create one array for storing parameter data and another one for telling which
 type of data it is (int, float, string, etc.).)
+
+
+How To Simulate Exceptions?
+---------------------------
+
+Possible solutions:
+* Use macros for assert functions that will return an error code if the assert
+  failed.

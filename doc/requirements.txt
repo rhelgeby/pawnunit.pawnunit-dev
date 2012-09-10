@@ -1,12 +1,12 @@
 PawnUnit Specification
 ======================
 
-Main goals:
+Main goals, in order of priority:
 
     * Easy to write tests (hide complexity, clean test code)
     * Support unit tests
-    * Support asynchronous tests to deal with callbacks and events  -- UNSATISFIED due to current SourcePawn limits!
     * Support fully automated testing
-    * Support manually starting tests
-    * Generate test report in multiple formats
     * Embedded in plugin with minimal impact on plugin code
+    * Support asynchronous tests to deal with callbacks and events  -- UNSATISFIED due to current SourcePawn limits!
+    * Generate test report in multiple formats
+    * Support manually starting individual tests    -- Not a priority at the moment.

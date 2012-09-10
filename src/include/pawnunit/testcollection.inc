@@ -35,7 +35,7 @@
  */
 enum TestCollection
 {
-    INVALID_TEST_COLLECTION = -1;
+    INVALID_TEST_COLLECTION = -1
 }
 
 /**
@@ -66,13 +66,13 @@ enum TestCollectionData
  *
  * @return              Reference to the test collection data structure.
  */
-stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
+stock TestCollection:PawnUnit_CreateTestCollection(const String:name[],
         Handle:testCases = INVALID_HANDLE,
         Function:before = INVALID_FUNCTION,
         Function:after = INVALID_FUNCTION)
 {
     // Create array to store data in. Reserve space for strings.
-    new Handle:testCollection = CreateArray(PAWNUNIT_MSG_LEN);
+    new Handle:collection = CreateArray(PAWNUNIT_MSG_LEN);
     
     // Create empty test case array if not specified.
     if (testCases == INVALID_HANDLE)
@@ -82,18 +82,18 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
     
     // Write test collection data.
     // Note: Update TestCollectionData enum if write order is changed.
-    PushArrayCell(testCollection, _:phases);    // TestCollection_TestCases
-    PushArrayCell(testCollection, _:before);    // TestCollection_Before
-    PushArrayCell(testCollection, _:after);     // TestCollection_After
-    PushArrayString(testCollection, name);      // TestCollection_Name
+    PushArrayCell(collection, _:testCases); // TestCollection_TestCases
+    PushArrayCell(collection, _:before);    // TestCollection_Before
+    PushArrayCell(collection, _:after);     // TestCollection_After
+    PushArrayString(collection, name);      // TestCollection_Name
     
-    return TestCollection:testCollection;
+    return TestCollection:collection;
 }
 
 /**
  * Deletes a test collection.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param recursive         Whether to delete the test cases in the collection.
  *                          Warning: Not doing a recursive deletion may cause a
  *                          memory leak if its test cases aren't deleted
@@ -102,59 +102,59 @@ stock TestCollection:PawnUnit_CreateTestCase(const String:name[],
  *                          INVALID_TEST_COLLECTION when deleted. Default is
  *                          true.
  */
-stock Handle:PawnUnit_DeleteTestCollection(TestCase:&testCollection,
+stock Handle:PawnUnit_DeleteTestCollection(&TestCollection:collection,
         bool:recursive = true,
         bool:resetReference = true)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    new Handle:testCases = Handle:GetArrayCell(testCollection, _:TestCollection_TestCases);
+    new Handle:testCases = GetArrayCell(Handle:collection, _:TestCollection_TestCases);
     
     if (recursive)
     {
         new len = GetArraySize(testCases);
         for (new i = 0; i < len; i++)
         {
-            TestCase:testCase = GetArrayCell(testCases, i);
+            new TestCase:testCase = GetArrayCell(testCases, i);
             PawnUnit_DeleteTestCase(testCase);
         }
     }
     
     CloseHandle(testCases);
-    CloseHandle(testCollection);
+    CloseHandle(Handle:collection);
     
     if (resetReference)
     {
-        testCollection = INVALID_TEST_COLLECTION;
+        collection = INVALID_TEST_COLLECTION;
     }
 }
 
 /**
  * Gets the test case array.
  *
- * @param testCollection    Test collection reference.
+ * @param collection    Test collection reference.
  *
- * @return          Handle to array.
+ * @return              Handle to array.
  */
-stock Handle:PawnUnit_GetTestCases(TestCollection:testCollection)
+stock Handle:PawnUnit_GetTestCases(TestCollection:collection)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    return Handle:GetArrayCell(Handle:testCollection, _:TestCollection_TestCases);
+    return Handle:GetArrayCell(Handle:collection, _:TestCollection_TestCases);
 }
 
 /**
  * Adds a test case to a test collection.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param testCase          Test case to add.
  */
-stock PawnUnit_AddTestCase(TestCollection:testCollection, TestCase:testCase)
+stock PawnUnit_AddTestCase(TestCollection:collection, TestCase:testCase)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     PawnUnit_ValidateTestCase(testCase);
     
-    Handle:testCases = PawnUnit_GetTestPhases(testCollection);
+    new Handle:testCases = PawnUnit_GetTestPhases(collection);
     PushArrayCell(testCases, testCase);
 }
 
@@ -162,97 +162,97 @@ stock PawnUnit_AddTestCase(TestCollection:testCollection, TestCase:testCase)
  * Gets the function reference for the function to execute before every test
  * case.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  *
  * @return                  Function reference or INVALID_FUNCTION if none
  *                          specified.
  */
-stock Function:PawnUnit_GetBefore(TestCollection:testCollection)
+stock Function:PawnUnit_GetBefore(TestCollection:collection)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    return Function:GetArrayCell(Handle:testCollection, _:TestCollection_Before);
+    return Function:GetArrayCell(Handle:collection, _:TestCollection_Before);
 }
 
 /**
  * Sets the function reference for the function to execute before every test
  * case.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param before            New function to execute before every test case.
  *
  * @return                  Function reference or INVALID_FUNCTION if none
  *                          specified.
  */
-stock PawnUnit_SetBefore(TestCollection:testCollection, Function:before)
+stock PawnUnit_SetBefore(TestCollection:collection, Function:before)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    SetArrayCell(Handle:testCollection, _:TestCollection_Before, _:before);
+    SetArrayCell(Handle:collection, _:TestCollection_Before, _:before);
 }
 
 /**
  * Gets the function reference for the function to execute after every test
  * case.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  *
  * @return                  Function reference or INVALID_FUNCTION if none
  *                          specified.
  */
-stock Function:PawnUnit_GetAfter(TestCollection:testCollection)
+stock Function:PawnUnit_GetAfter(TestCollection:collection)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    return Function:GetArrayCell(Handle:testCollection, _:TestCollection_After);
+    return Function:GetArrayCell(Handle:collection, _:TestCollection_After);
 }
 
 /**
  * Sets the function reference for the function to execute after every test
  * case.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param after             New function to execute after every test case.
  *
  * @return                  Function reference or INVALID_FUNCTION if none
  *                          specified.
  */
-stock PawnUnit_SetAfter(TestCollection:testCollection, Function:after)
+stock PawnUnit_SetAfter(TestCollection:collection, Function:after)
 {
     PawnUnit_ValidateTestCollection(testCollection);
     
-    SetArrayCell(Handle:testCollection, _:TestCollection_After, _:after);
+    SetArrayCell(Handle:collection, _:TestCollection_After, _:after);
 }
 
 /**
  * Gets the test collection name.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param buffer            Destination string buffer.
  * @param maxlen            Size of buffer.
  *
  * @return                  Number of characters copied.
  */
-stock PawnUnit_GetTestCollectionName(TestCollection:testCollection, String:buffer[], maxlen)
+stock PawnUnit_GetTestCollectionName(TestCollection:collection, String:buffer[], maxlen)
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    return GetArrayString(Handle:testCollection, _:TestCollection_Name, buffer, maxlen);
+    return GetArrayString(Handle:collection, _:TestCollection_Name, buffer, maxlen);
 }
 
 /**
  * Sets the test collection name.
  *
- * @param testCollection    Test collection reference.
+ * @param collection        Test collection reference.
  * @param name              New name to set.
  *
  * @return                  Number of characters copied.
  */
-stock PawnUnit_SetTestCollectionName(TestCollection:testCollection, const String:name[])
+stock PawnUnit_SetTestCollectionName(TestCollection:collection, const String:name[])
 {
-    PawnUnit_ValidateTestCollection(testCollection);
+    PawnUnit_ValidateTestCollection(collection);
     
-    SetArrayString(Handle:testCollection, _:TestCollection_Name, name);
+    SetArrayString(Handle:collection, _:TestCollection_Name, name);
 }
 
 
@@ -263,23 +263,23 @@ stock PawnUnit_SetTestCollectionName(TestCollection:testCollection, const String
 /**
  * Returns whether the test collection reference is valid.
  *
- * @param testCollection    Test collection reference to validate.
+ * @param collection        Test collection reference to validate.
  *
  * @return                  True if valid, false otherwise.
  */
-stock bool:PawnUnit_IsValidTestCollection(TestCollection:testCollection)
+stock bool:PawnUnit_IsValidTestCollection(TestCollection:collection)
 {
-    return testCollection != INVALID_TEST_COLLECTION;
+    return collection != INVALID_TEST_COLLECTION;
 }
 
 /**
  * Throws an error if the test collection is invalid.
  *
- * @param testCollection    Test collection reference to validate.
+ * @param collection        Test collection reference to validate.
  */
-stock PawnUnit_ValidateTestCase(TestCollection:testCollection)
+stock PawnUnit_ValidateTestCollection(TestCollection:collection)
 {
-    if (!PawnUnit_IsValidTestCollection(testCollection))
+    if (!PawnUnit_IsValidTestCollection(collection))
     {
         ThrowError("Invalid test collection.");
     }

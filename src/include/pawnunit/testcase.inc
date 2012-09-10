@@ -35,7 +35,7 @@
  */
 enum TestCase
 {
-    INVALID_TEST_CASE = -1;
+    INVALID_TEST_CASE = -1
 }
 
 /**
@@ -46,7 +46,7 @@ enum TestCase
  */
 enum TestCaseData
 {
-    TestCase_Phases,        /** Array of function handles. */
+    TestCase_Phases = 0,    /** Array of function handles. */
     TestCase_Passed,        /** Specifies whether the test passed or not. */
     TestCase_ErrorMessage,  /** Error message if the test failed. */
     TestCase_Name,          /** Display name of test case. */
@@ -92,14 +92,14 @@ stock TestCase:PawnUnit_CreateTestCase(const String:name[], Handle:phases = INVA
  * @param resetReference    Optional. Reset testCase to INVALID_TEST_CASE when
  *                          deleted. Default is true.
  */
-stock Handle:PawnUnit_DeleteTestCase(TestCase:&testCase, bool:resetReference = true)
+stock Handle:PawnUnit_DeleteTestCase(&TestCase:testCase, bool:resetReference = true)
 {
     PawnUnit_ValidateTestCase(testCase);
     
     // Delete test phase array.
-    CloseHandle(Handle:GetArrayCell(testCase, _:TestCase_Phases));
+    CloseHandle(Handle:GetArrayCell(Handle:testCase, _:TestCase_Phases));
     
-    CloseHandle(testCase);
+    CloseHandle(Handle:testCase);
     
     if (resetReference)
     {
@@ -130,9 +130,9 @@ stock Handle:PawnUnit_GetTestPhases(TestCase:testCase)
 stock PawnUnit_AddTestPhase(TestCase:testCase, PawnUnitTestPhase:phase)
 {
     PawnUnit_ValidateTestCase(testCase);
-    PawnUnit_ValidateTestCase(phase);
+    PawnUnit_ValidateTestPhase(phase);
     
-    Handle:phases = PawnUnit_GetTestPhases(testCase);
+    new Handle:phases = PawnUnit_GetTestPhases(testCase);
     PushArrayCell(phases, _:phase);
 }
 
@@ -264,7 +264,7 @@ stock PawnUnit_ValidateTestCase(TestCase:testCase)
  *
  * @return              True if valid, false otherwise.
  */
-stock bool:PawnUnit_IsValidPhase(Function:phase)
+stock bool:PawnUnit_IsValidPhase(PawnUnitTestPhase:phase)
 {
     return phase != INVALID_FUNCTION;
 }
@@ -274,7 +274,7 @@ stock bool:PawnUnit_IsValidPhase(Function:phase)
  *
  * @param phase         Test phase to validate.
  */
-stock PawnUnit_ValidateTestCase(Function:phase)
+stock PawnUnit_ValidateTestPhase(Function:phase)
 {
     if (!PawnUnit_IsValidPhase(phase))
     {
