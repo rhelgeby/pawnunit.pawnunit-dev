@@ -46,6 +46,8 @@ public Plugin:myinfo =
 };
 
 new TestCollection:ExampleCollection = INVALID_TEST_COLLECTION;
+new bool:SuspendTested = false;
+
 
 /**
  * Plugin is loading.
@@ -155,8 +157,8 @@ InitTestCases()
     PawnUnit_AddTestPhase(floatEqFailMargin, FloatEqFailMargin);
     
     new TestCase:suspendTest = PawnUnit_CreateTestCase("Suspending for 2 seconds");
-    PawnUnit_AddTestPhase(floatEqFailMargin, SuspendTest);
-    PawnUnit_AddTestPhase(floatEqFailMargin, SuspendTestResume);
+    PawnUnit_AddTestPhase(suspendTest, SuspendTest);
+    PawnUnit_AddTestPhase(suspendTest, SuspendTestResume);
     
     // Add test cases to the collection.
     PawnUnit_AddTestCase(ExampleCollection, primeTest);
@@ -170,6 +172,7 @@ InitTestCases()
     PawnUnit_AddTestCase(ExampleCollection, floatEqPass);
     PawnUnit_AddTestCase(ExampleCollection, floatEqPassMargin);
     PawnUnit_AddTestCase(ExampleCollection, floatEqFailMargin);
+    PawnUnit_AddTestCase(ExampleCollection, suspendTest);
 }
 
 public TestControlAction:PrimeTest(TestCase:testCase)
@@ -180,10 +183,20 @@ public TestControlAction:PrimeTest(TestCase:testCase)
 
     Assert(True(IsPrime(2)));
     Assert(True(IsPrime(3)));
+    Assert(False(IsPrime(4)));
     Assert(True(IsPrime(5)));
+    Assert(False(IsPrime(6)));
     Assert(True(IsPrime(7)));
+    Assert(False(IsPrime(8)));
+    Assert(False(IsPrime(9)));
+    Assert(False(IsPrime(10)));
     Assert(True(IsPrime(11)));
+    Assert(False(IsPrime(12)));
     Assert(True(IsPrime(13)));
+    Assert(False(IsPrime(14)));
+    Assert(False(IsPrime(15)));
+    Assert(False(IsPrime(16)));
+    Assert(False(IsPrime(17)));
     Assert(True(IsPrime(17)));
 
     return Test_Continue;
@@ -237,16 +250,23 @@ public TestControlAction:FloatEqFailMargin(TestCase:testCase)
 
 public TestControlAction:SuspendTest(TestCase:testCase)
 {
-    // Create timer for resuming test.
-    CreateTimer(2.0, SuspendTimer);
+    // Only test suspend once. We don't want a infinite loop.
+    if (!SuspendTested)
+    {
+        // Create timer for resuming test.
+        CreateTimer(2.0, SuspendTimer);
+
+        // Suspend test engine.
+        return Test_Suspend;
+    }
     
-    // Suspend test engine.
-    return Test_Suspend;
+    return Test_Continue;
 }
 
 public Action:SuspendTimer(Handle:timer)
 {
     // Timer tick. Resume testing. It should continue where it left.
+    SuspendTested = true;
     RunTests();
 }
 

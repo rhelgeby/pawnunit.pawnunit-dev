@@ -98,13 +98,11 @@ static stock NumTestsFailed = 0;
  */
 stock PawnUnit_Run(TestCollection:collection)
 {
-    PawnUnit_ResetStates();
-    
     new Handle:testCases = PawnUnit_GetTestCases(collection);
     
     new String:collectionName[PAWNUNIT_NAME_LEN];
     PawnUnit_GetTestCollectionName(collection, collectionName, sizeof(collectionName));
-        
+    
     // Check if there are no tests to run.
     new numTests = GetArraySize(testCases);
     if (numTests == 0)
@@ -121,8 +119,6 @@ stock PawnUnit_Run(TestCollection:collection)
         // Note: If this value is out of bounds, the for loop below will never
         //       execute and testing complete as usual.
         test = CurrentTestIndex + 1;
-        
-        Suspended = false;
     }
     
     // Loop through test cases.
@@ -243,6 +239,21 @@ stock PawnUnit_ResetStatistics()
 {
     NumTestsPassed = 0;
     NumTestsFailed = 0;
+}
+
+/**
+ * Resets all states.
+ */
+stock PawnUnit_ResetStates()
+{
+    Suspended = false;
+    //CurrentTest = INVALID_TEST_CASE;
+    CurrentTestIndex = -1;
+    //CurrentPhase = INVALID_FUNCTION;
+    CurrentPhaseIndex = -1;
+    MessageBuffer[0] = 0;
+    BeforeTest = INVALID_FUNCTION;
+    AfterTest = INVALID_FUNCTION;
 }
 
 /**
@@ -419,21 +430,6 @@ static stock PawnUnit_ExecuteAfter(TestCollection:collection)
         Call_StartFunction(GetMyHandle(), after);
         Call_Finish();
     }
-}
-
-/**
- * Resets all states.
- */
-static stock PawnUnit_ResetStates()
-{
-    Suspended = false;
-    //CurrentTest = INVALID_TEST_CASE;
-    CurrentTestIndex = -1;
-    //CurrentPhase = INVALID_FUNCTION;
-    CurrentPhaseIndex = -1;
-    MessageBuffer[0] = 0;
-    BeforeTest = INVALID_FUNCTION;
-    AfterTest = INVALID_FUNCTION;
 }
 
 /**
