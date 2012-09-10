@@ -56,11 +56,6 @@ enum TestControlAction
 functag public TestControlAction:PawnUnitTestPhase(TestCase:testCase);
 
 
-#include <pawnunit/assert>
-#include <pawnunit/testcase>
-#include <pawnunit/testcollection>
-
-
 // Strings.
 #define PAWNUNIT_STR_RUNNING_TEST       "Running test \"%s\" at phase %d..."
 #define PAWNUNIT_STR_TEST_FAILED        "TEST FAILED..."
@@ -80,7 +75,7 @@ static stock CurrentTestIndex = -1;
 static stock CurrentPhaseIndex = -1;
 
 // Global buffer for storing temporary messages.
-static stock String:MessageBuffer[PAWNUNIT_MSG_LEN];
+stock String:MessageBuffer[PAWNUNIT_MSG_LEN];
 
 // Cache of functions to call before and after tests.
 static stock Function:BeforeTest = INVALID_FUNCTION;
@@ -89,6 +84,11 @@ static stock Function:AfterTest = INVALID_FUNCTION;
 // Statistics.
 static stock NumTestsPassed = 0;
 static stock NumTestsFailed = 0;
+
+
+#include <pawnunit/assert>
+#include <pawnunit/testcase>
+#include <pawnunit/testcollection>
 
 
 /**
@@ -212,19 +212,18 @@ stock TestControlAction:PawnUnit_RunTest(TestCase:testCase, const String:collect
             // Do nothing. We intercept test passed message for each phase. This
             // is handled by PawnUnit_Run.
         }
-        else if (!PawnUnit_HandleResultAction(phaseAction, testCase))
-        {
-            // Aborting or suspending.
-            return phaseAction;
-        }
         else if (phaseAction == Test_Failed)
         {
             // Test phase failed. Normally the handler will say that we should
             // continue, but this is not the case for test phases.
+            PawnUnit_SetTestPassed(testCase, false);
+            PawnUnit_SetTestCaseError(testCase, MessageBuffer);
             
-            // Note: The test case is already marked as failed by the handler
-            //       above.
-            
+            return phaseAction;
+        }
+        else if (!PawnUnit_HandleResultAction(phaseAction, testCase))
+        {
+            // Aborting or suspending.
             return phaseAction;
         }
     }

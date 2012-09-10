@@ -39,7 +39,7 @@
  *
  * @param 1     Logical expression. (Like assert functions below.)
  */
-#define Assert(%1)          if (!(%1)) return Test_Failed;
+#define Assert(%1)          if (!(%1)) return Test_Failed
 
 /**
  * General assert macro that returns Test_Failed if logically false, and stores
@@ -58,10 +58,10 @@
  * @param 1     Message formatting rules string with parameters. (As in the 
  *              Format function)
  */
-#define FailTest(%1)        Format(MessageBuffer, sizeof(MessageBuffer), %2); return Test_Failed;
+#define FailTest(%1)        Format(MessageBuffer, sizeof(MessageBuffer), %1); return Test_Failed
 
 
-#define FORMAT_MESSAGE(%1)  Format(MessageBuffer, sizeof(MessageBuffer), %1);
+#define FORMAT_MESSAGE(%1)  Format(MessageBuffer, sizeof(MessageBuffer), %1)
 
 // Strings.
 #define NOT_TRUE                    "Value was not true"
@@ -158,7 +158,7 @@ stock bool:CellEquals(expected, actual, const String:msg[] = CELL_EXPECTED_BUT_W
  */
 stock bool:FloatEquals(Float:expected, Float:actual, Float:delta = 0.0001, const String:msg[] = FLOAT_EXPECTED_BUT_WAS)
 {
-    if (actual != expected && (FloatAbs(expected - actual) <= delta))
+    if (actual != expected && (FloatAbs(expected - actual) > delta))
     {
         FORMAT_MESSAGE(msg, expected, actual);
         return false;

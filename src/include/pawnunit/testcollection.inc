@@ -154,7 +154,7 @@ stock PawnUnit_AddTestCase(TestCollection:collection, TestCase:testCase)
     PawnUnit_ValidateTestCollection(collection);
     PawnUnit_ValidateTestCase(testCase);
     
-    new Handle:testCases = PawnUnit_GetTestPhases(collection);
+    new Handle:testCases = PawnUnit_GetTestCases(collection);
     PushArrayCell(testCases, testCase);
 }
 
