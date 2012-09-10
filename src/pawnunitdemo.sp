@@ -54,6 +54,7 @@ public OnPluginStart()
 {
     InitTestCases();
     RunTests();
+    PawnUnit_PrintResults(ExampleCollection);
 }
 
 /**
@@ -138,7 +139,7 @@ public TestControlAction:ShouldFail(TestCase:testCase)
 
 public TestControlAction:CellEqFail(TestCase:testCase)
 {
-    Assert(CellEquals(1, 2, "Failing on purpose."));
+    Assert(CellEquals(1, 2));
     return Test_Continue;
 }
 
@@ -150,7 +151,7 @@ public TestControlAction:CellEqPass(TestCase:testCase)
 
 public TestControlAction:FloatEqFail(TestCase:testCase)
 {
-    Assert(FloatEquals(1.0, 2.0, _, "Failing on purpose."));
+    Assert(FloatEquals(1.0, 2.0));
     return Test_Continue;
 }
 

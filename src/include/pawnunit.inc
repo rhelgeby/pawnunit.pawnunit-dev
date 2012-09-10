@@ -245,6 +245,79 @@ stock PawnUnit_ResetStatistics()
     NumTestsFailed = 0;
 }
 
+/**
+ * Prints test results for a collection in the server console.
+ *
+ * @param collection    Test collection reference.
+ */
+stock PawnUnit_PrintResults(TestCollection:collection)
+{
+    #define TESTS_IN_COLLECTION "Tests in collection \"%s\""
+    #define HEADER_STRING       "Test name:                          Status:"
+    #define LINE_STRING         "-------------------------------------------------------------------------------"
+    #define DUBLE_LINE_STRING   "==============================================================================="
+    #define ENTRY_FMT           "%35s %s"
+    #define PASSED_STRING       "[PASSED]"
+    #define TESTS_PASSED        "Tests passed:"
+    #define TESTS_FAILED        "Tests failed:"
+
+    PawnUnit_ValidateTestCollection(collection);
+    
+    new Handle:testCases = PawnUnit_GetTestCases(collection);
+    
+    new String:collectionName[PAWNUNIT_NAME_LEN];
+    PawnUnit_GetTestCollectionName(collection, collectionName, sizeof(collectionName));
+        
+    // Check if there are no tests cases.
+    new numTests = GetArraySize(testCases);
+    if (numTests == 0)
+    {
+        ThrowError("No test cases in collection \"%s\"", collectionName);
+    }
+    
+    // Print header.
+    PrintToServer(TESTS_IN_COLLECTION, collectionName);
+    PrintToServer("%s\n%s", HEADER_STRING, DUBLE_LINE_STRING);
+    
+    // Loop through test cases.
+    for (new test = 0; test < numTests; test++)
+    {
+        new TestCase:testCase = TestCase:GetArrayCell(testCases, test);
+        
+        decl String:testName[PAWNUNIT_NAME_LEN];
+        testName[0] = 0;
+        PawnUnit_GetTestCaseName(testCase, testName, sizeof(testName));
+        
+        decl String:testMsg[PAWNUNIT_MSG_LEN];
+        testMsg[0] = 0;
+        PawnUnit_GetTestCaseError(testCase, testMsg, sizeof(testMsg));
+        
+        new bool:passed = PawnUnit_GetTestPassed(testCase);
+        
+        // Validate test case.
+        if (!PawnUnit_IsValidTestCase(testCase))
+        {
+            LogError("Invalid test case at index %d in collection \"%s\"", collectionName);
+            continue;
+        }
+        
+        // Print result.
+        if (passed)
+        {
+            PrintToServer(ENTRY_FMT, testName, PASSED_STRING);
+        }
+        else
+        {
+            PrintToServer(ENTRY_FMT, testName, testMsg);
+        }
+    }
+    
+    PrintToServer(LINE_STRING);
+    
+    PrintToServer("%20s %d\n%20s %d", TESTS_PASSED, NumTestsPassed, TESTS_FAILED, NumTestsFailed);
+    PrintToServer(LINE_STRING);
+}
+
 
 /*************************
  *   Private functions   *
@@ -279,6 +352,8 @@ static stock bool:PawnUnit_HandleResultAction(TestControlAction:action, TestCase
             PawnUnit_SetTestCaseError(testCase, "Testing aborted.");
             PawnUnit_ResetStates();
             
+            NumTestsFailed++;
+            
             // Stop.
             return false;
         }
@@ -287,12 +362,16 @@ static stock bool:PawnUnit_HandleResultAction(TestControlAction:action, TestCase
             // Test passed.
             PawnUnit_Print(PAWNUNIT_STR_TEST_PASSED);
             PawnUnit_SetTestPassed(testCase, true);
+            
+            NumTestsPassed++;
         }
         case Test_Failed:
         {
             PawnUnit_Print(PAWNUNIT_STR_TEST_FAILED);
             PawnUnit_SetTestPassed(testCase, false);
             PawnUnit_SetTestCaseError(testCase, MessageBuffer);
+            
+            NumTestsFailed++;
         }
         case Test_Suspend:
         {
