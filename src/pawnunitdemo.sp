@@ -72,14 +72,52 @@ RunTests()
     PawnUnit_Run(ExampleCollection);
 }
 
+/**
+ * Returns whether a number is a prime number.
+ *
+ * Source: http://stackoverflow.com/questions/1538644/c-determine-if-a-number-is-prime
+ *
+ * @param number    Number to test.
+ *
+ * @return          True if prime, false otherwise.
+ */
+bool:IsPrime(number)
+{
+    if (number <= 1)
+    {
+        return false;
+    }
+    
+    for (new i = 2; i < number; i++)
+    {
+        if (number % i == 0 && i != number)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 /******************
  *   Test cases   *
  ******************/
 
 InitTestCases()
 {
+    // Tests cases should be added to a collection. Collections can be used for
+    // organizing test code or grouping test cases that need certain stuff to
+    // be done before and after each test.
     ExampleCollection = PawnUnit_CreateTestCollection("Example tests");
     
+    // Create a test case.
+    new TestCase:primeTest = PawnUnit_CreateTestCase("Prime number test");
+    
+    // Add a test phase to it (callback for the actual test code).
+    PawnUnit_AddTestPhase(primeTest, PrimeTest);
+    
+    // A test case supports multiple phases. They are executed sequentially in
+    // the order they're added.
     new TestCase:phaseTest = PawnUnit_CreateTestCase("Should pass 5 phases");
     PawnUnit_AddTestPhase(phaseTest, ShouldPass);
     PawnUnit_AddTestPhase(phaseTest, ShouldPass);
@@ -87,17 +125,13 @@ InitTestCases()
     PawnUnit_AddTestPhase(phaseTest, ShouldPass);
     PawnUnit_AddTestPhase(phaseTest, ShouldPass);
     
+    // If one phase fails, execution is stopped and the test case fails.
     new TestCase:phaseTestFail = PawnUnit_CreateTestCase("Should fail on third phase");
     PawnUnit_AddTestPhase(phaseTestFail, ShouldPass);
     PawnUnit_AddTestPhase(phaseTestFail, ShouldPass);
     PawnUnit_AddTestPhase(phaseTestFail, ShouldFail);
     PawnUnit_AddTestPhase(phaseTestFail, ShouldPass);
     PawnUnit_AddTestPhase(phaseTestFail, ShouldPass);
-    
-    new TestCase:floatEqPassMargin = PawnUnit_CreateTestCase("FloatEquals passing with margin");
-    PawnUnit_AddTestPhase(floatEqPassMargin, FloatEqPassMargin);
-    new TestCase:floatEqFailMargin = PawnUnit_CreateTestCase("FloatEquals failing with margin");
-    PawnUnit_AddTestPhase(floatEqFailMargin, FloatEqFailMargin);
     
     new TestCase:shouldPass = PawnUnit_CreateTestCase("Should pass");
     PawnUnit_AddTestPhase(shouldPass, ShouldPass);
@@ -115,6 +149,19 @@ InitTestCases()
     new TestCase:floatEqPass = PawnUnit_CreateTestCase("FloatEquals passing");
     PawnUnit_AddTestPhase(floatEqPass, FloatEqPass);
     
+    new TestCase:floatEqPassMargin = PawnUnit_CreateTestCase("FloatEquals passing with margin");
+    PawnUnit_AddTestPhase(floatEqPassMargin, FloatEqPassMargin);
+    new TestCase:floatEqFailMargin = PawnUnit_CreateTestCase("FloatEquals failing with margin");
+    PawnUnit_AddTestPhase(floatEqFailMargin, FloatEqFailMargin);
+    
+    new TestCase:suspendTest = PawnUnit_CreateTestCase("Suspending for 2 seconds");
+    PawnUnit_AddTestPhase(floatEqFailMargin, SuspendTest);
+    PawnUnit_AddTestPhase(floatEqFailMargin, SuspendTestResume);
+    
+    // Add test cases to the collection.
+    PawnUnit_AddTestCase(ExampleCollection, primeTest);
+    PawnUnit_AddTestCase(ExampleCollection, phaseTest);
+    PawnUnit_AddTestCase(ExampleCollection, phaseTestFail);
     PawnUnit_AddTestCase(ExampleCollection, shouldPass);
     PawnUnit_AddTestCase(ExampleCollection, shouldFail);
     PawnUnit_AddTestCase(ExampleCollection, cellEqFail);
@@ -123,8 +170,23 @@ InitTestCases()
     PawnUnit_AddTestCase(ExampleCollection, floatEqPass);
     PawnUnit_AddTestCase(ExampleCollection, floatEqPassMargin);
     PawnUnit_AddTestCase(ExampleCollection, floatEqFailMargin);
-    PawnUnit_AddTestCase(ExampleCollection, phaseTest);
-    PawnUnit_AddTestCase(ExampleCollection, phaseTestFail);
+}
+
+public TestControlAction:PrimeTest(TestCase:testCase)
+{
+    Assert(False(IsPrime(-1)));
+    Assert(False(IsPrime(0)));
+    Assert(False(IsPrime(1)));
+
+    Assert(True(IsPrime(2)));
+    Assert(True(IsPrime(3)));
+    Assert(True(IsPrime(5)));
+    Assert(True(IsPrime(7)));
+    Assert(True(IsPrime(11)));
+    Assert(True(IsPrime(13)));
+    Assert(True(IsPrime(17)));
+
+    return Test_Continue;
 }
 
 public TestControlAction:ShouldPass(TestCase:testCase)
@@ -172,3 +234,24 @@ public TestControlAction:FloatEqFailMargin(TestCase:testCase)
     Assert(FloatEquals(1.0, 1.01, 0.001));
     return Test_Continue;
 }
+
+public TestControlAction:SuspendTest(TestCase:testCase)
+{
+    // Create timer for resuming test.
+    CreateTimer(2.0, SuspendTimer);
+    
+    // Suspend test engine.
+    return Test_Suspend;
+}
+
+public Action:SuspendTimer(Handle:timer)
+{
+    // Timer tick. Resume testing. It should continue where it left.
+    RunTests();
+}
+
+public TestControlAction:SuspendTestResume(TestCase:testCase)
+{
+    return Test_Continue;
+}
+
