@@ -31,9 +31,6 @@
 #endif
 #define _pawnunit_included
 
-// Assert macro that returns if assert failed.
-#define Assert(%1)          if (!(%1)) return Test_Failed;
-
 #define PAWNUNIT_NAME_LEN   64
 #define PAWNUNIT_MSG_LEN    255
 
@@ -59,7 +56,7 @@ enum TestControlAction
 functag public TestControlAction:PawnUnitTestPhase(TestCase:testCase);
 
 
-//#include <pawnunit/assert>
+#include <pawnunit/assert>
 #include <pawnunit/testcase>
 #include <pawnunit/testcollection>
 
